@@ -14,7 +14,8 @@ namespace AsyncHell
 
         private static Task<int> ProcessLine(string line)
         {
-            JustPrintToConsole(line, CancellationToken.None);
+            var cts = new CancellationTokenSource();
+            JustPrintToConsole(line, cts.Token);
             int value = 0;
             try
             {
@@ -34,6 +35,7 @@ namespace AsyncHell
                 Console.WriteLine($"Bad value in {line}");
             }
 
+            cts.Cancel();
             return Task.FromResult(value);
         }
 
@@ -49,7 +51,7 @@ namespace AsyncHell
         {
             await Task.Delay(1);
             if (value <= 0) throw new ArgumentException(nameof(value), "Value must be greater than zero!");
-            return value;
+            return value + 1;
         }
     }
 }
