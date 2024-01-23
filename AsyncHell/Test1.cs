@@ -3,16 +3,20 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace AsyncHell
 {
-    internal class Program
+    [TestFixture]
+    public class Test1
     {
-        public static async Task Main(string[] args) =>
+        [Test]
+        public async Task RunTest(string[] args)
+        {
             args.SelectMany(File.ReadAllLines).Select(ProcessLine);
+        }
 
-
-        private static Task<int> ProcessLine(string line)
+        private Task<int> ProcessLine(string line)
         {
             var cts = new CancellationTokenSource();
             JustPrintToConsole(line, cts.Token);
@@ -39,15 +43,15 @@ namespace AsyncHell
             return Task.FromResult(value);
         }
 
-        private static async void JustPrintToConsole(string line, CancellationToken ctoken)
+        private async void JustPrintToConsole(string line, CancellationToken ctoken)
         {
             await Task.Delay(100, ctoken);
             Console.WriteLine(line);
         }
 
-        private static Task<int> ParseValue(string line) => Task.FromResult(int.Parse(line));
+        private Task<int> ParseValue(string line) => Task.FromResult(int.Parse(line));
 
-        private static async Task<int> AddOne(int value)
+        private async Task<int> AddOne(int value)
         {
             await Task.Delay(1);
             if (value <= 0) throw new ArgumentException(nameof(value), "Value must be greater than zero!");
