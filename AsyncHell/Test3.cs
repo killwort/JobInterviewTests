@@ -9,27 +9,24 @@ namespace AsyncHell
     [TestFixture]
     public class Test3
     {
-        private Semaphore _semaphore = new Semaphore(0, 10);
-        private int _completedItems;
+
         [Test]
         public async Task RunTest()
         {
-            await Task.WhenAll(Enumerable.Range(0, 1000).Select(DoWorkInParallel));
-            Assert.AreEqual(1000, _completedItems);
+            var task = IncrementAndReturnAsync();
+            var r1 = await task;
+            var rIntermediate = await IncrementAndReturnAsync();
+            var r2 = await task;
+            Assert.AreEqual(r1, r2);
+            Assert.AreNotEqual(r1, rIntermediate);
         }
 
-        private async Task DoWorkInParallel(int i)
+        private static int state;
+
+        private async ValueTask<int> IncrementAndReturnAsync()
         {
-            _semaphore.WaitOne();
-            try
-            {
-                await Task.Delay(100).ConfigureAwait(false);
-                _completedItems++;
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            await Task.Yield();
+            return Interlocked.Increment(ref state);
         }
     }
 }
